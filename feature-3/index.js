@@ -1,11 +1,9 @@
-// require ('dotenv').config()
-
 const sendQuestionToServer = (event) => {
     event.preventDefault()
     const question = event.target.question.value
     const fileName = event.target.fileName.value
 
-    return fetch('/s3/upload', {
+    return fetch('http://localhost:3000/s3/upload', {
         method: 'PUT',
         body: JSON.stringify({ question, fileName }),
         headers: new Headers({
@@ -19,9 +17,3 @@ const sendQuestionToServer = (event) => {
 }
 
 document.getElementById('questionInput').addEventListener('submit', sendQuestionToServer)
-
-
-
-
-
-// console.log(process.env.AWS_ACCESS_KEY_ID)
