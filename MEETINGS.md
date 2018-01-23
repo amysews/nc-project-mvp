@@ -61,3 +61,13 @@ Agreed on series of separate spikes needed before building MVP (mainly around AW
 * FRONT-END
   * Input forms
   * Output views of Q&As
+  
+# Day 2
+
+## Morning standup:
+* Reviewed progress from yesterday
+* Aiming to get all the actions going into AWS working by the end of the day
+
+## Afternoon standup:
+* CM + SM working on the lambda function to get info from the S3 bucket to the database
+* AJMC + ALC done web to database, database to web - now looking at S3 bucket to web - then aiming to put it all together
