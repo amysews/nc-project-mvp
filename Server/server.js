@@ -61,4 +61,24 @@ app.put('/RDS/upload', (req, res) => {
         .catch(err => console.log(err));
 })
 
+app.get('/RDS/people', (req, res) => {
+    mysql.createConnection({
+        host: process.env.host,
+        port: process.env.port,
+        user: process.env.user,
+        password: process.env.password,
+        database: process.env.database
+    })
+        .then(connection => {
+            const people = connection.query("SELECT * FROM people")
+            connection.end();
+            return people;
+        })
+        .then(people => {
+            console.log(people);
+            res.json({people});
+        })
+        .catch(err => console.log(err));
+})
+
 app.listen(port, () => console.log('listening ' + port));
