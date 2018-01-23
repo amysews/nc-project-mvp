@@ -36,7 +36,7 @@ app.put(`/s3/upload`, (req, res)=>{
 
 app.put('/RDS/upload', (req, res) => {
     const { first_name, surname, submitter, questioner, region, email, user_password, gender, dob, occupation } = req.body;
-
+    console.log(req.body);
 
     mysql.createConnection({
         host: process.env.host,
@@ -46,11 +46,12 @@ app.put('/RDS/upload', (req, res) => {
         database: process.env.database
     })
         .then(connection => {
-            const result = connection.query(SQL`
+            const qry = SQL`
             INSERT 
             INTO people (first_name, surname, submitter, questioner, region, email, user_password, gender, dob, occupation) 
-            VALUES (${first_name}, ${surname}, ${submitter}, ${questioner}, ${region}, ${email}, ${user_password}, ${gender}, ${dob}, ${occupation})`
-        )
+            VALUES (${first_name}, ${surname}, ${submitter}, ${questioner}, ${region}, ${email}, ${user_password}, ${gender}, ${dob}, ${occupation})`;
+            console.log(qry);
+            const result = connection.query(qry)
             connection.end();
             return result;
         })
