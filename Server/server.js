@@ -1,7 +1,9 @@
+
+
 require('dotenv').config()
 const express = require('express');
 const bodyParser = require('body-parser');
-const aws  = require('aws-sdk');
+const aws = require('aws-sdk');
 const s3 = new aws.S3();
 const s3Bucket = 'oldnewdbbucket';
 const cors = require('cors');
@@ -20,7 +22,7 @@ app.use(bodyParser.json());
 
 app.get('/', (req, res) => res.send('Hello world'));
 
-app.put(`/s3/upload`, (req, res)=>{
+app.put(`/s3/upload`, (req, res) => {
     const { question, fileName } = req.body;
     const params = {
         Bucket: s3Bucket,
@@ -31,8 +33,35 @@ app.put(`/s3/upload`, (req, res)=>{
     s3.putObject(params, (err, data) => {
         if (err) console.log(err)
         else console.log(data, 'success')
-      })
+    })
 })
+
+app.get('/s3/questions', (req, res) => {  
+    const key = req.query.keyName;   /// keyname on the query
+    const params = {
+        Bucket: s3Bucket,
+        Key: key + '.json'
+
+    }
+    let getObjectPromise = s3.getObject(params).promise();
+    getObjectPromise.then((data) => {
+
+        return data.Body.toString('utf8')
+    })
+        .then((newData) => {
+            console.log(newData)
+        })
+        .catch((err) => {
+            console.log(err)
+        })
+})
+
+
+
+
+
+
+
 
 app.put('/RDS/upload', (req, res) => {
     const { first_name, surname, submitter, questioner, region, email, user_password, gender, dob, occupation } = req.body;
@@ -76,7 +105,7 @@ app.get('/RDS/people', (req, res) => {
         })
         .then(people => {
             console.log(people);
-            res.json({people});
+            res.json({ people });
         })
         .catch(err => console.log(err));
 })
