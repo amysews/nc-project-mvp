@@ -3,7 +3,7 @@ const s3Router = express.Router();
 
 const aws = require('aws-sdk');
 const s3 = new aws.S3();
-const s3Bucket = 'oldnewdbbucket';
+const s3Bucket = 'rawaudiostorage-northcoders';
 const mysql = require('promise-mysql');
 const SQL = require('sql-template-strings');
 
