@@ -20,14 +20,14 @@ class Questions extends React.Component {
 				console.log(questionsMetaData)
 				const promises = questionsMetaData.map(question => {
 					// then fetch the text file out of the bucket using the Q_ID
-					return fetch(`http://localhost:3002/s3/question?keyName=q${question.id}`).then(buffer => buffer.json())
+					return fetch(`http://localhost:3002/s3/textstorage?keyName=q${question.id}`).then(buffer => buffer.json())
 				})
 				return Promise.all(promises);
 			})
 			.then(questionText => {
 				console.log(questionText)
 				questionsMetaData.forEach((question, i) => {
-					questionsMetaData[i]["text"] = questionText[i].question
+					questionsMetaData[i]["text"] = questionText[i].text
 				})
 				this.setState({ questions: questionsMetaData })
 			})

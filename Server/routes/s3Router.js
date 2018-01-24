@@ -10,11 +10,11 @@ const mysql = require('promise-mysql');
 const SQL = require('sql-template-strings');
 
 s3Router.put(`/upload`, (req, res) => {
-	const { question, fileName } = req.body;
+	const { text, fileName } = req.body;
 	const params = {
 		Bucket: textBucket,
 		Key: fileName + '.txt',
-		Body: question
+		Body: text
 	}
 
 	s3.putObject(params, (err, data) => {
@@ -26,7 +26,7 @@ s3Router.put(`/upload`, (req, res) => {
 	})
 })
 
-s3Router.get('/question', (req, res) => {
+s3Router.get('/textstorage', (req, res) => {
 	const key = req.query.keyName;   /// keyname on the query
 	const params = {
 		Bucket: textBucket,
@@ -37,9 +37,9 @@ s3Router.get('/question', (req, res) => {
 
 		return data.Body.toString('utf8')
 	})
-		.then((question) => {
-			console.log(question)
-			res.json({ question })
+		.then((text) => {
+			console.log(text)
+			res.json({ text })
 		})
 		.catch((err) => {
 			console.log(err)

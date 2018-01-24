@@ -97,4 +97,24 @@ rdsRouter.get('/question/:question_id', (req, res) => {
 		.catch(err => console.log(err));
 })
 
+rdsRouter.get('/question/:question_id/answers', (req, res) => {
+	const id = req.params.question_id;
+	mysql.createConnection({
+		host: process.env.host,
+		port: process.env.port,
+		user: process.env.user,
+		password: process.env.password,
+		database: process.env.database
+	})
+		.then(connection => {
+			const answers = connection.query(SQL`SELECT * FROM answers WHERE question_id = ${id}`)
+			connection.end();
+			return answers;
+		})
+		.then(answers => {
+			res.json({ answers });
+		})
+		.catch(err => console.log(err));
+})
+
 module.exports = rdsRouter;
