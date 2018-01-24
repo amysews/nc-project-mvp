@@ -8,51 +8,93 @@ const mysql = require('promise-mysql');
 const SQL = require('sql-template-strings');
 
 rdsRouter.put('/upload', (req, res) => {
-    const { first_name, surname, submitter, questioner, region, email, user_password, gender, dob, occupation } = req.body;
-    console.log(req.body);
+	const { first_name, surname, submitter, questioner, region, email, user_password, gender, dob, occupation } = req.body;
+	console.log(req.body);
 
-    mysql.createConnection({
-        host: process.env.host,
-        port: process.env.port,
-        user: process.env.user,
-        password: process.env.password,
-        database: process.env.database
-    })
-        .then(connection => {
-            const qry = SQL`
+	mysql.createConnection({
+		host: process.env.host,
+		port: process.env.port,
+		user: process.env.user,
+		password: process.env.password,
+		database: process.env.database
+	})
+		.then(connection => {
+			const qry = SQL`
             INSERT 
             INTO people (first_name, surname, submitter, questioner, region, email, user_password, gender, dob, occupation) 
             VALUES (${first_name}, ${surname}, ${submitter}, ${questioner}, ${region}, ${email}, ${user_password}, ${gender}, ${dob}, ${occupation})`;
-            console.log(qry);
-            const result = connection.query(qry)
-            connection.end();
-            return result;
-        })
-        .then(data => {
-            console.log(data);
-            res.status(201).send()
-        })
-        .catch(err => console.log(err));
+			console.log(qry);
+			const result = connection.query(qry)
+			connection.end();
+			return result;
+		})
+		.then(data => {
+			console.log(data);
+			res.status(201).send()
+		})
+		.catch(err => console.log(err));
 })
 
 rdsRouter.get('/people', (req, res) => {
-    mysql.createConnection({
-        host: process.env.host,
-        port: process.env.port,
-        user: process.env.user,
-        password: process.env.password,
-        database: process.env.database
-    })
-        .then(connection => {
-            const people = connection.query("SELECT * FROM people")
-            connection.end();
-            return people;
-        })
-        .then(people => {
-            console.log(people);
-            res.json({ people });
-        })
-        .catch(err => console.log(err));
+	mysql.createConnection({
+		host: process.env.host,
+		port: process.env.port,
+		user: process.env.user,
+		password: process.env.password,
+		database: process.env.database
+	})
+		.then(connection => {
+			const people = connection.query("SELECT * FROM people")
+			connection.end();
+			return people;
+		})
+		.then(people => {
+			console.log(people);
+			res.json({ people });
+		})
+		.catch(err => console.log(err));
+})
+
+rdsRouter.get('/questions', (req, res) => {
+	mysql.createConnection({
+		host: process.env.host,
+		port: process.env.port,
+		user: process.env.user,
+		password: process.env.password,
+		database: process.env.database
+	})
+		.then(connection => {
+			const questions = connection.query("SELECT * FROM questions WHERE question_in_bucket = 1")
+			connection.end();
+			return questions;
+		})
+		.then(questions => {
+			console.log(questions);
+			res.json({ questions });
+		})
+		.catch(err => console.log(err));
+})
+
+rdsRouter.get('/question/:question_id', (req, res) => {
+	const id = req.params.question_id;
+	mysql.createConnection({
+		host: process.env.host,
+		port: process.env.port,
+		user: process.env.user,
+		password: process.env.password,
+		database: process.env.database
+	})
+		.then(connection => {
+			const question = connection.query(SQL`SELECT * FROM questions WHERE id = ${id}`)
+			connection.end();
+			return question;
+		})
+		.then(questionArr => {
+			const question = questionArr[0]
+			console.log(question);
+			res.json({ question });
+		})
+		.catch(err => console.log(err));
 })
 
 module.exports = rdsRouter;
