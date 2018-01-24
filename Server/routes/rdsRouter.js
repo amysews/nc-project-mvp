@@ -55,6 +55,28 @@ rdsRouter.get('/people', (req, res) => {
 		.catch(err => console.log(err));
 })
 
+rdsRouter.get('/people/:asker_id', (req, res) => {
+	const id = req.params.asker_id;
+	mysql.createConnection({
+		host: process.env.host,
+		port: process.env.port,
+		user: process.env.user,
+		password: process.env.password,
+		database: process.env.database
+	})
+		.then(connection => {
+			const asker = connection.query(SQL`SELECT * FROM people WHERE id = ${id}`)
+			connection.end();
+			return asker;
+		})
+		.then(askerArr => {
+			const asker = askerArr[0]
+			console.log(asker);
+			res.json( asker );
+		})
+		.catch(err => console.log(err));
+})
+
 rdsRouter.get('/questions', (req, res) => {
 	mysql.createConnection({
 		host: process.env.host,
