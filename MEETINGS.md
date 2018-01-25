@@ -71,3 +71,16 @@ Agreed on series of separate spikes needed before building MVP (mainly around AW
 ## Afternoon standup:
 * CM + SM working on the lambda function to get info from the S3 bucket to the database
 * AJMC + ALC done web to database, database to web - now looking at S3 bucket to web - then aiming to put it all together
+
+# Day 3
+
+## Achieved:
+* Finished all the spiking of the elements
+* Set up all AWS elements
+* Started react app
+* spiked audio
+
+# Day 4
+
+* More work on react app
+* Still working on getting the audio data from the browser to s3 bucket
