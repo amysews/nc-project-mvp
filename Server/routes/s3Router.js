@@ -9,7 +9,7 @@ const mp3AudioBucket = 'mp3audiostorage-northcoders';
 const mysql = require('promise-mysql');
 const SQL = require('sql-template-strings');
 
-s3Router.put(`/upload`, (req, res) => {
+s3Router.put(`/textstorage`, (req, res) => {
 	const { text, fileName } = req.body;
 	const params = {
 		Bucket: textBucket,
@@ -38,7 +38,6 @@ s3Router.get('/textstorage', (req, res) => {
 		return data.Body.toString('utf8')
 	})
 		.then((text) => {
-			console.log(text)
 			res.json({ text })
 		})
 		.catch((err) => {

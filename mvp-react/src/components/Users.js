@@ -10,11 +10,11 @@ class Users extends React.Component {
 	}
 
 	getAllUsers = () => {
-		return fetch('http://localhost:3002/rds/people')
+		return fetch('http://localhost:3002/rds/users')
 			.then(resBuffer => resBuffer.json())
 			.then((res) => {
 				this.setState({
-					users: res.people
+					users: res.users
 				})
 			})
 			.catch(err => console.log(err))
@@ -26,8 +26,8 @@ class Users extends React.Component {
 		return (
 			<div>
 				<ul>
-					{users.map((person, i) => {
-						return <li key={i}>{person.first_name} {person.surname}</li>
+					{users.map((user, i) => {
+						return <li key={i}>{user.first_name} {user.surname}</li>
 					})
 					}
 				</ul>

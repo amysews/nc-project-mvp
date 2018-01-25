@@ -1,14 +1,16 @@
 const express = require('express');
 const rdsRouter = express.Router();
 
+const textBucket = 'textstorage-northcoders';
+const rawAudioBucket = 'rawaudiostorage-northcoders';
+const mp3AudioBucket = 'mp3audiostorage-northcoders';
 const aws = require('aws-sdk');
 const s3 = new aws.S3();
-const s3Bucket = 'oldnewdbbucket';
 const mysql = require('promise-mysql');
 const SQL = require('sql-template-strings');
 
-rdsRouter.put('/upload', (req, res) => {
-	const { first_name, surname, submitter, questioner, region, email, user_password, gender, dob, occupation } = req.body;
+rdsRouter.put('/users', (req, res) => {
+	const { first_name, surname, answerer, questioner, region, email, user_password, gender, dob, occupation } = req.body;
 	console.log(req.body);
 
 	mysql.createConnection({
@@ -21,8 +23,8 @@ rdsRouter.put('/upload', (req, res) => {
 		.then(connection => {
 			const qry = SQL`
             INSERT 
-            INTO people (first_name, surname, submitter, questioner, region, email, user_password, gender, dob, occupation) 
-            VALUES (${first_name}, ${surname}, ${submitter}, ${questioner}, ${region}, ${email}, ${user_password}, ${gender}, ${dob}, ${occupation})`;
+            INTO users (first_name, surname, answerer, questioner, region, email, user_password, gender, dob, occupation) 
+            VALUES (${first_name}, ${surname}, ${answerer}, ${questioner}, ${region}, ${email}, ${user_password}, ${gender}, ${dob}, ${occupation})`;
 			console.log(qry);
 			const result = connection.query(qry)
 			connection.end();
@@ -35,7 +37,11 @@ rdsRouter.put('/upload', (req, res) => {
 		.catch(err => console.log(err));
 })
 
-rdsRouter.get('/people', (req, res) => {
+//
+rdsRouter.put('/questions', (req, res) => {
+	const { user_id, topic, keywords} = req.body;
+	console.log(req.body);
+
 	mysql.createConnection({
 		host: process.env.host,
 		port: process.env.port,
@@ -44,19 +50,46 @@ rdsRouter.get('/people', (req, res) => {
 		database: process.env.database
 	})
 		.then(connection => {
-			const people = connection.query("SELECT * FROM people")
+			const qry = SQL`
+            INSERT 
+            INTO questions (user_id, topic, keywords) 
+            VALUES (${user_id}, ${topic}, ${keywords})`;
+			const result = connection.query(qry)
 			connection.end();
-			return people;
+			return result;
 		})
-		.then(people => {
-			console.log(people);
-			res.json({ people });
+		.then(data => {
+			res.status(201).send()
+		})
+		.catch(err => console.log(err));
+})
+//
+rdsRouter.put('/answers', (req, res) => {
+	const { user_id, question_id } = req.body;
+
+	mysql.createConnection({
+		host: process.env.host,
+		port: process.env.port,
+		user: process.env.user,
+		password: process.env.password,
+		database: process.env.database
+	})
+		.then(connection => {
+			const qry = SQL`
+            INSERT 
+            INTO answers (user_id, question_id) 
+            VALUES (${user_id}, ${question_id})`;
+			const result = connection.query(qry)
+			connection.end();
+			return result;
+		})
+		.then(data => {
+			res.status(201).send()
 		})
 		.catch(err => console.log(err));
 })
 
-rdsRouter.get('/people/:asker_id', (req, res) => {
-	const id = req.params.asker_id;
+rdsRouter.get('/users', (req, res) => {
 	mysql.createConnection({
 		host: process.env.host,
 		port: process.env.port,
@@ -65,14 +98,33 @@ rdsRouter.get('/people/:asker_id', (req, res) => {
 		database: process.env.database
 	})
 		.then(connection => {
-			const asker = connection.query(SQL`SELECT * FROM people WHERE id = ${id}`)
+			const users = connection.query("SELECT * FROM users")
 			connection.end();
-			return asker;
+			return users;
 		})
-		.then(askerArr => {
-			const asker = askerArr[0]
-			console.log(asker);
-			res.json( asker );
+		.then(users => {
+			res.json({ users });
+		})
+		.catch(err => console.log(err));
+})
+
+rdsRouter.get('/users/:user_id', (req, res) => {
+	const id = req.params.user_id;
+	mysql.createConnection({
+		host: process.env.host,
+		port: process.env.port,
+		user: process.env.user,
+		password: process.env.password,
+		database: process.env.database
+	})
+		.then(connection => {
+			const user = connection.query(SQL`SELECT * FROM users WHERE id = ${id}`)
+			connection.end();
+			return user;
+		})
+		.then(userArr => {
+			const user = userArr[0]
+			res.json( user );
 		})
 		.catch(err => console.log(err));
 })
@@ -86,18 +138,17 @@ rdsRouter.get('/questions', (req, res) => {
 		database: process.env.database
 	})
 		.then(connection => {
-			const questions = connection.query("SELECT * FROM questions WHERE question_in_bucket = 1")
+			const questions = connection.query("SELECT * FROM questions WHERE text_in_bucket = 1")
 			connection.end();
 			return questions;
 		})
 		.then(questions => {
-			console.log(questions);
 			res.json({ questions });
 		})
 		.catch(err => console.log(err));
 })
 
-rdsRouter.get('/question/:question_id', (req, res) => {
+rdsRouter.get('/questions/:question_id', (req, res) => {
 	const id = req.params.question_id;
 	mysql.createConnection({
 		host: process.env.host,
@@ -113,13 +164,12 @@ rdsRouter.get('/question/:question_id', (req, res) => {
 		})
 		.then(questionArr => {
 			const question = questionArr[0]
-			console.log(question);
 			res.json({ question });
 		})
 		.catch(err => console.log(err));
 })
 
-rdsRouter.get('/question/:question_id/answers', (req, res) => {
+rdsRouter.get('/questions/:question_id/answers', (req, res) => {
 	const id = req.params.question_id;
 	mysql.createConnection({
 		host: process.env.host,

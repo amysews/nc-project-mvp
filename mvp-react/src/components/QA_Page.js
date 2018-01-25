@@ -14,7 +14,7 @@ class QA_Page extends React.Component {
         let questionMetaData;
         let answerMetaData;
         // Fetches question meta data
-        return fetch(`http://localhost:3002/rds/question/${id}`)
+        return fetch(`http://localhost:3002/rds/questions/${id}`)
             .then(buffer => buffer.json())
             .then(metaData => questionMetaData = metaData.question)
             .then(() => {
@@ -25,16 +25,15 @@ class QA_Page extends React.Component {
             .then(questionText => {
                 questionMetaData.text = questionText.text;
                 // Fetches asker info 
-                return fetch(`http://localhost:3002/rds/people/${questionMetaData.asker_id}`)
+                return fetch(`http://localhost:3002/rds/users/${questionMetaData.user_id}`)
             })
             .then(buffer => buffer.json())
             .then(userMetaData => {
-                console.log(userMetaData, 'user following fetching the user data')
-                questionMetaData.asker = userMetaData;
+                questionMetaData.user = userMetaData;
             })
             .then(() => {
                 // Fetches all of the answers with their meta data for that question
-                return fetch(`http://localhost:3002/rds/question/${id}/answers`)
+                return fetch(`http://localhost:3002/rds/questions/${id}/answers`)
             })
             .then(buffer => buffer.json())
             .then(metaData => answerMetaData = metaData.answers)
@@ -49,7 +48,18 @@ class QA_Page extends React.Component {
                 answerText.forEach((answer, i) => {
                     answerMetaData[i]['text'] = answerText[i].text
                 })
-                console.log(questionMetaData, 'just before setting state - question data')
+            })
+            .then(() => {
+                const promises = answerMetaData.map(answer => {
+                    return fetch(`http://localhost:3002/rds/users/${answer.user_id}`).then(buffer => buffer.json())
+                })
+                return Promise.all(promises)
+            })
+            .then((userMetaData) => {
+                console.log(userMetaData)
+                userMetaData.forEach((user, i) => {
+                    answerMetaData[i].user = user
+                })
                 this.setState({ question: questionMetaData, answers: answerMetaData })
             })
 
@@ -57,22 +67,22 @@ class QA_Page extends React.Component {
 
 
 
-    render () {
+    render() {
         const { question, answers } = this.state;
-        console.log(question, 'inside render')
-        if (!question.asker) question.asker = {};
+        if (!question.user) question.user = {};
         return (
             <div>
                 <h1>{question.text}</h1>
-                <p>{question.asker.first_name} {question.asker.surname}</p>
-                <p>{question.question_time_stamp}</p>
-                <p>{question.question_keywords}</p>
+                <p>{question.user.first_name} {question.user.surname}</p>
+                <p>{question.time_stamp}</p>
+                <p>{question.keywords}</p>
                 {answers.map((answer, i) => {
-                return (
-                 <div key={i}>
-                    <p>{answer.text}</p>
-                 </div>
-                )
+                    return (
+                        <div key={i}>
+                            <p>{answer.text}</p>
+                            <p>{answer.user.first_name} {answer.user.surname}</p>
+                        </div>
+                    )
                 })
                 }
             </div>
