@@ -4,7 +4,7 @@ class Users extends React.Component {
 	state = {
 		users: []
 	}
-	
+
 	componentDidMount() {
 		this.getAllUsers()
 	}
@@ -35,4 +35,5 @@ class Users extends React.Component {
 		)
 	}
 }
+
 export default Users;
