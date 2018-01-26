@@ -10,11 +10,12 @@ const mysql = require('promise-mysql');
 const SQL = require('sql-template-strings');
 
 s3Router.put(`/textstorage`, (req, res) => {
-	const { text, fileName } = req.body;
+	console.log(req.body,'HERE IS THE REQ.BODy')
+	const { id, questionText } = req.body;
 	const params = {
 		Bucket: textBucket,
-		Key: fileName + '.txt',
-		Body: text
+		Key: id + '.txt',
+		Body: questionText
 	}
 
 	s3.putObject(params, (err, data) => {
