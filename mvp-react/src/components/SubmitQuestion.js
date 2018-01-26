@@ -33,13 +33,12 @@ class SubmitQuestion extends React.Component {
 
         if (questionText.length > 0){
             text_in_bucket = 1
-        } else {
+                        } else {
             text_in_bucket = 0
         }
-    
+        console.log(text_in_bucket, 'iiii')
 
-        function updateTopicName (){
-
+        function updateTopicName (){                //update database with metadata from the question form.
             return fetch('http://localhost:3002/rds/questions', {
                 method: 'PUT',
                 body: JSON.stringify({ user_id, topic, keywords, answered, text_in_bucket }),
@@ -54,44 +53,49 @@ class SubmitQuestion extends React.Component {
                     // }
                 })
         }
-        
-        function getIdOfQuestion (){
+    
+        function getIdOfQuestion (){        //fetch db metadata for question text file name. Incomplete.
             return fetch('http://localhost:3002/rds/questions')
             .then(buffer=>buffer.json())
             .then(data=>{
-                console.log(data)
+                console.log(data, 'data')
             })
         }
 
 
 
 
-        function putQuestionInS3 () {
+        function putQuestionInS3 (questionText) {       //put question text into bucket.  File is delivered but undefined
+            console.log('*****')
             return fetch(`http://localhost:3002/s3/textstorage`, {
                 method: 'PUT',
-                body: JSON.stringify({ questionText}),
+                body: JSON.stringify({ questionText }),
                 headers: new Headers({
                     'Content-Type': 'application/json'
                 })
             })
-            .then(buffer => buffer.json())
+            .then(buffer => {
+                return buffer})
           
-          
-        
         }
-        function UpdateTopicAndBucket () {
-
-            return Promise.all([updateTopicName(), getIdOfQuestion(), putQuestionInS3()])
+        function UpdateTopicAndBucket () {                  //run functions in order of renaming
+            return updateTopicName().then(() => {
+                return getIdOfQuestion()
+            })
+            .then(() => {
+                return putQuestionInS3(questionText)
+            })
+            .then(res => {
+                console.log(res)
+                return res
+            })
+            .catch(console.log)
         }
         UpdateTopicAndBucket() 
-        .then(([topic, bucket])=>{
-            console.log(topic, bucket)
+        .then((data)=>{
+            //console.log(data)
         })
             // this ^ needs to be within the above fetch request
-
-
-
-       
     }
 
 
