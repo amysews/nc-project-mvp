@@ -2,6 +2,12 @@ const express = require('express');
 const s3Router = express.Router();
 
 const aws = require('aws-sdk');
+
+const { accessKeyId, secretAccessKey, region } = require('./config')
+aws.config.region = region;
+aws.config.credentials = { accessKeyId, secretAccessKey }
+
+
 const s3 = new aws.S3();
 const textBucket = 'textstorage-northcoders';
 const rawAudioBucket = 'rawaudiostorage-northcoders';
@@ -43,6 +49,36 @@ s3Router.get('/textstorage', (req, res) => {
 		.catch((err) => {
 			console.log(err)
 		})
+})
+
+s3Router.get('/sign', (req, res) => {
+	const filename = req.query.objectName;
+    const mimeType = 'audio/webm';
+    const ext = '.webm';
+    const fileKey = filename + ext;
+
+    const params = {
+      Bucket: rawAudioBucket,
+      Key: fileKey,
+      Expires: 6000,
+      ContentType: mimeType,
+      ACL: 'public-read' // || 'private'
+    };
+
+	// Getting pre-signed url - no actual data is being passed here
+    s3.getSignedUrl('putObject', params, function(err, url) {
+      if (err) {
+        console.log(err);
+        return res.send(500, "Cannot create S3 signed URL");
+      }
+
+      console.log('url: ', url)
+      res.json({
+        signedUrl: url,
+        publicUrl: 'https://s3.amazonaws.com/'+ rawAudioBucket + '/' + fileKey,
+        filename: filename
+      });
+    });
 })
 
 module.exports = s3Router;

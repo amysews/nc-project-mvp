@@ -1,13 +1,12 @@
 const express = require('express');
 const rdsRouter = express.Router();
+const mysql = require('promise-mysql');
+const SQL = require('sql-template-strings');
 
 const textBucket = 'textstorage-northcoders';
 const rawAudioBucket = 'rawaudiostorage-northcoders';
 const mp3AudioBucket = 'mp3audiostorage-northcoders';
-const aws = require('aws-sdk');
-const s3 = new aws.S3();
-const mysql = require('promise-mysql');
-const SQL = require('sql-template-strings');
+
 
 rdsRouter.put('/users', (req, res) => {
 	const { first_name, surname, answerer, questioner, region, email, user_password, gender, dob, occupation } = req.body;
@@ -37,7 +36,6 @@ rdsRouter.put('/users', (req, res) => {
 		.catch(err => console.log(err));
 })
 
-//
 rdsRouter.put('/questions', (req, res) => {
 	const { user_id, topic, keywords} = req.body;
 	console.log(req.body);
@@ -63,7 +61,7 @@ rdsRouter.put('/questions', (req, res) => {
 		})
 		.catch(err => console.log(err));
 })
-//
+
 rdsRouter.put('/answers', (req, res) => {
 	const { user_id, question_id } = req.body;
 
