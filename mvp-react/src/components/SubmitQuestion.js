@@ -28,31 +28,69 @@ class SubmitQuestion extends React.Component {
         const questionText = event.target.questionText.value
         const topic = event.target.topic.value
         const keywords = topic
+        const answered = 1
+        let text_in_bucket;
+
+        if (questionText.length > 0){
+            text_in_bucket = 1
+        } else {
+            text_in_bucket = 0
+        }
+    
+
+        function updateTopicName (){
+
+            return fetch('http://localhost:3002/rds/questions', {
+                method: 'PUT',
+                body: JSON.stringify({ user_id, topic, keywords, answered, text_in_bucket }),
+                headers: new Headers({
+                    'Content-Type': 'application/json'
+                })
+            })       
+                .then(res => {
+                    // console.log(res)
+                    // if (res.status === 201) {
+                    //     this.setState({ submitted: true });                  /// this is coming back undefined , cannot set state
+                    // }
+                })
+        }
         
-        let text_in_bucket = 1
-        console.log(text_in_bucket)
-        // if (questionText.length > 0){
-        //     text_in_bucket = 1
-        // } else {
-        //     text_in_bucket = 0
-        // }
-
-
-        return fetch('http://localhost:3002/rds/questions', {
-            method: 'PUT',
-            body: JSON.stringify({ user_id, topic, keywords, text_in_bucket }),
-            headers: new Headers({
-                'Content-Type': 'application/json'
+        function getIdOfQuestion (){
+            return fetch('http://localhost:3002/rds/questions')
+            .then(buffer=>buffer.json())
+            .then(data=>{
+                console.log(data)
             })
+        }
+
+
+
+
+        function putQuestionInS3 () {
+            return fetch(`http://localhost:3002/s3/textstorage`, {
+                method: 'PUT',
+                body: JSON.stringify({ questionText}),
+                headers: new Headers({
+                    'Content-Type': 'application/json'
+                })
+            })
+            .then(buffer => buffer.json())
+          
+          
+        
+        }
+        function UpdateTopicAndBucket () {
+
+            return Promise.all([updateTopicName(), getIdOfQuestion(), putQuestionInS3()])
+        }
+        UpdateTopicAndBucket() 
+        .then(([topic, bucket])=>{
+            console.log(topic, bucket)
         })
-            .then(res => {
-                if (res.status === 201) {
-                    this.setState({ submitted: true });
-                }
-            })
-            .catch(err => {
-                console.log(err)
-            })
+            // this ^ needs to be within the above fetch request
+
+
+
        
     }
 
