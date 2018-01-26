@@ -1,3 +1,5 @@
+
+
 const express = require('express');
 const rdsRouter = express.Router();
 
@@ -39,7 +41,7 @@ rdsRouter.put('/users', (req, res) => {
 
 //
 rdsRouter.put('/questions', (req, res) => {
-	const { user_id, topic, keywords} = req.body;
+	const { user_id, topic, keywords, answered, text_in_bucket} = req.body;
 	console.log(req.body);
 
 	mysql.createConnection({
@@ -52,8 +54,8 @@ rdsRouter.put('/questions', (req, res) => {
 		.then(connection => {
 			const qry = SQL`
             INSERT 
-            INTO questions (user_id, topic, keywords) 
-            VALUES (${user_id}, ${topic}, ${keywords})`;
+            INTO questions (user_id, topic, keywords, answered, text_in_bucket) 
+            VALUES (${user_id}, ${topic}, ${keywords},  ${answered},  ${text_in_bucket})`;
 			const result = connection.query(qry)
 			connection.end();
 			return result;
