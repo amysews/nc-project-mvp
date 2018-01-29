@@ -12,6 +12,7 @@ const SQL = require('sql-template-strings');
 s3Router.put(`/textstorage`, (req, res) => {
 	console.log(req.body,'HERE IS THE REQ.BODy')
 	const { id, questionText } = req.body;
+	console.log(id, 'id')
 	const params = {
 		Bucket: textBucket,
 		Key: id + '.txt',

@@ -58,18 +58,21 @@ class SubmitQuestion extends React.Component {
             return fetch('http://localhost:3002/rds/questions')
             .then(buffer=>buffer.json())
             .then(data=>{
-                console.log(data, 'data')
+                data = {...data}
+                let id = data.questions[data.questions.length - 1].id
+                console.log(id, 'id')
+                return id
             })
         }
 
 
 
 
-        function putQuestionInS3 (questionText) {       //put question text into bucket.  File is delivered but undefined
+        function putQuestionInS3 (questionText, id) {       //put question text into bucket.  File is delivered but undefined
             console.log('*****')
             return fetch(`http://localhost:3002/s3/textstorage`, {
                 method: 'PUT',
-                body: JSON.stringify({ questionText }),
+                body: JSON.stringify({ questionText, id }),
                 headers: new Headers({
                     'Content-Type': 'application/json'
                 })
@@ -82,8 +85,8 @@ class SubmitQuestion extends React.Component {
             return updateTopicName().then(() => {
                 return getIdOfQuestion()
             })
-            .then(() => {
-                return putQuestionInS3(questionText)
+            .then((id) => {
+                return putQuestionInS3(questionText, id)
             })
             .then(res => {
                 console.log(res)
