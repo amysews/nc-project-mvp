@@ -41,7 +41,7 @@ rdsRouter.put('/users', (req, res) => {
 
 //
 rdsRouter.put('/questions', (req, res) => {
-	const { user_id, topic, keywords, answered, text_in_bucket} = req.body;
+	const { user_id, topic, keywords, answered} = req.body;
 	console.log(req.body);
 
 	mysql.createConnection({
@@ -54,14 +54,14 @@ rdsRouter.put('/questions', (req, res) => {
 		.then(connection => {
 			const qry = SQL`
             INSERT 
-            INTO questions (user_id, topic, keywords, answered, text_in_bucket) 
-            VALUES (${user_id}, ${topic}, ${keywords},  ${answered},  ${text_in_bucket})`;
+            INTO questions (user_id, topic, keywords, answered) 
+            VALUES (${user_id}, ${topic}, ${keywords},  ${answered})`;
 			const result = connection.query(qry)
 			connection.end();
 			return result;
 		})
 		.then(data => {
-			res.status(201).send()
+			res.status(201).json({ questionId: data.insertId })
 		})
 		.catch(err => console.log(err));
 })

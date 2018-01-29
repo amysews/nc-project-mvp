@@ -23,7 +23,7 @@ s3Router.put(`/textstorage`, (req, res) => {
 		if (err) console.log(err)
 		else {
 			console.log(data, 'success')
-			res.status(201).send();
+			res.status(201).json({question: data});
 		}
 	})
 })
